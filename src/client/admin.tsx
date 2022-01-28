@@ -12,6 +12,23 @@ const postState = (state: MutableState) => {
 
 const initialState = await (await fetch("/state")).json();
 
+const ClientCount: React.FunctionComponent = () => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const source = new EventSource("/client-count");
+    source.addEventListener("message", (message) =>
+      setCount(JSON.parse(message.data))
+    );
+    source.addEventListener("error", (event) => {
+      console.error(event);
+      return () => {
+        source.close();
+      };
+    });
+  }, []);
+  return <div>Client Count: {count}</div>;
+};
+
 const App: React.FunctionComponent<{ initialState: State }> = ({
   initialState,
 }) => {
@@ -26,7 +43,7 @@ const App: React.FunctionComponent<{ initialState: State }> = ({
   useEffect(() => addListener(0x36, (e) => e === "on" && toggleFPS()), []);
   return (
     <>
-      <div>clients: {initialState.clientsConnected}</div>
+      <ClientCount />
       <label>
         active
         <input type="checkbox" checked={active} onChange={toggleActive}></input>

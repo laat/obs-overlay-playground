@@ -11,7 +11,10 @@ addLiveReload(app);
 
 const stateUpdate = Symbol("state update");
 const stateEmitter = new EventEmitter();
-let state: State = { active: false, browserFPS: false, clientsConnected: 0 };
+let state: State = { active: false, browserFPS: false };
+const clientsConnectedEvent = Symbol("count update");
+const clientsConnectedEmitter = new EventEmitter();
+let clientsConnected = 0;
 const updateState = (nextState: State) => {
   state = nextState;
   stateEmitter.emit(stateUpdate);
@@ -22,7 +25,7 @@ app.use(express.static("public"));
 app.use("/js", express.static(path.join("built", "client")));
 
 app.get("/state-updates", (req, res) => {
-  updateState({ ...state, clientsConnected: state.clientsConnected + 1 });
+  clientsConnected++;
   res.set({
     "Cache-Control": "no-cache",
     "Content-Type": "text/event-stream",
@@ -37,14 +40,32 @@ app.get("/state-updates", (req, res) => {
   };
   stateEmitter.addListener(stateUpdate, listener);
   req.on("close", () => {
-    updateState({ ...state, clientsConnected: state.clientsConnected - 1 });
+    clientsConnected--;
     stateEmitter.removeListener(stateUpdate, listener);
+  });
+});
+app.get("/client-count", (req, res) => {
+  res.set({
+    "Cache-Control": "no-cache",
+    "Content-Type": "text/event-stream",
+    Connection: "keep-alive",
+  });
+  res.flushHeaders();
+  res.write("retry: 1000\n\n");
+  res.write(`data: ${JSON.stringify(clientsConnected)}\n\n`);
+
+  const listener = () => {
+    res.write(`data: ${JSON.stringify(clientsConnected)}\n\n`);
+  };
+  clientsConnectedEmitter.addListener(clientsConnectedEvent, listener);
+  req.on("close", () => {
+    clientsConnectedEmitter.removeListener(clientsConnectedEvent, listener);
   });
 });
 
 app.post("/state", (req, res) => {
   const nextState: MutableState = req.body;
-  updateState({ ...nextState, clientsConnected: state.clientsConnected });
+  updateState(nextState);
   res.send("ok");
 });
 
