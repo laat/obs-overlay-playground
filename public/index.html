@@ -5,9 +5,42 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>hello</title>
-    <script src="/js/index.js" type="module"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="/js/client.js" type="module"></script>
+    <script src="/js/live-reload.js" type="module"></script>
+    <link rel="stylesheet" href="css/fps.css" />
+
+    <style>
+      .box {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: block;
+        height: 100px;
+        width: 100px;
+      }
+
+      .orange {
+        background-color: orange;
+      }
+      .green {
+        background-color: green;
+      }
+      .grey {
+        background-color: grey;
+      }
+      #alert {
+        position: absolute;
+        top: 0;
+        left: -100px;
+      }
+    </style>
   </head>
   <body>
-    hello
+    <div id="alert">
+      <div class="box box1 green"></div>
+      <div class="box box2 orange"></div>
+      <div class="box box3 grey"></div>
+    </div>
   </body>
 </html>

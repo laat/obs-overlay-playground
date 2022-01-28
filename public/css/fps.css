@@ -1,0 +1,11 @@
+.fps {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: yellow;
+  font-size: 70px;
+  display: none;
+}
+.fps.active {
+  display: inline-block;
+}
