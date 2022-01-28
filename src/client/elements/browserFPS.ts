@@ -6,7 +6,6 @@ fps.classList.add("fps");
 document.body.appendChild(fps);
 
 const times: number[] = [];
-
 function refreshLoop() {
   window.requestAnimationFrame(() => {
     const now = performance.now();

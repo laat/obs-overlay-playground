@@ -1,7 +1,7 @@
 import express from "express";
 import { EventEmitter } from "node:events";
 import path from "node:path";
-import { State } from "../types";
+import { MutableState, State } from "../types";
 import { addLiveReload } from "./live-reload.js";
 
 const app = express();
@@ -43,7 +43,8 @@ app.get("/state-updates", (req, res) => {
 });
 
 app.post("/state", (req, res) => {
-  updateState(req.body);
+  const nextState: MutableState = req.body;
+  updateState({ ...nextState, clientsConnected: state.clientsConnected });
   res.send("ok");
 });
 
