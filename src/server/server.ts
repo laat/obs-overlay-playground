@@ -9,12 +9,18 @@ const port = 8080;
 
 addLiveReload(app);
 
-const stateUpdate = Symbol("state update");
-const stateEmitter = new EventEmitter();
-let state: State = { active: false, browserFPS: false };
 const clientsConnectedEvent = Symbol("count update");
 const clientsConnectedEmitter = new EventEmitter();
 let clientsConnected = 0;
+const updateClientsConnected = (count: number) => {
+  clientsConnected = count;
+  clientsConnectedEmitter.emit(clientsConnectedEvent);
+};
+
+const stateUpdate = Symbol("state update");
+const stateEmitter = new EventEmitter();
+let state: State = { active: false, browserFPS: false };
+
 const updateState = (nextState: State) => {
   state = nextState;
   stateEmitter.emit(stateUpdate);
@@ -25,7 +31,7 @@ app.use(express.static("public"));
 app.use("/js", express.static(path.join("built", "client")));
 
 app.get("/state-updates", (req, res) => {
-  clientsConnected++;
+  updateClientsConnected(clientsConnected + 1);
   res.set({
     "Cache-Control": "no-cache",
     "Content-Type": "text/event-stream",
@@ -40,7 +46,7 @@ app.get("/state-updates", (req, res) => {
   };
   stateEmitter.addListener(stateUpdate, listener);
   req.on("close", () => {
-    clientsConnected--;
+    updateClientsConnected(clientsConnected - 1);
     stateEmitter.removeListener(stateUpdate, listener);
   });
 });
