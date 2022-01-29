@@ -1,5 +1,5 @@
 import type { MutableState, State } from "../types";
-import { addListener } from "./helpers/midi-controls.js";
+import { addListener, midi } from "./helpers/midi-controls.js";
 const { useEffect, useState } = React;
 
 const postState = (state: MutableState) => {
@@ -43,6 +43,7 @@ const App: React.FunctionComponent<{ initialState: State }> = ({
   useEffect(() => addListener(0x36, (e) => e === "on" && toggleFPS()), []);
   return (
     <>
+      {midi ? <img src="/img/MIDI_LOGO.svg" height="20px"></img> : null}
       <ClientCount />
       <label>
         active

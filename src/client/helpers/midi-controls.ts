@@ -12,28 +12,33 @@ export const addListener = (key: number, listener: KeyListener) => {
   listeners[key] = [...list, listener];
   return () => removeListener(key, listener);
 };
-const midiAccess = await navigator.requestMIDIAccess();
-const input = midiAccess.inputs.values().next().value;
-if (input) {
-  console.log("midi connected");
 
-  input.onmidimessage = (event: any) => {
-    if (__debug__) {
-      var str = `MIDI message received at timestamp ${event.timeStamp}[${event.data.length} bytes]: `;
-      for (var i = 0; i < event.data.length; i++) {
-        str += "0x" + event.data[i].toString(16) + " ";
+export let midi = false;
+try {
+  const midiAccess = await navigator.requestMIDIAccess();
+  const input = midiAccess.inputs.values().next().value;
+  if (input) {
+    input.onmidimessage = (event: any) => {
+      if (__debug__) {
+        var str = `MIDI message received at timestamp ${event.timeStamp}[${event.data.length} bytes]: `;
+        for (var i = 0; i < event.data.length; i++) {
+          str += "0x" + event.data[i].toString(16) + " ";
+        }
+        console.log(str);
       }
-      console.log(str);
-    }
 
-    const Midi = { ON: 0x90, OFF: 0x80 };
-    const command = event.data[0];
-    const key = event.data[1];
-    const ls = listeners[key] || [];
-    if (command === Midi.ON) {
-      ls.forEach((l) => l("on", event.data[2]));
-    } else if (event.data[0] === Midi.OFF) {
-      ls.forEach((l) => l("off", event.data[2]));
-    }
-  };
+      const Midi = { ON: 0x90, OFF: 0x80 };
+      const command = event.data[0];
+      const key = event.data[1];
+      const ls = listeners[key] || [];
+      if (command === Midi.ON) {
+        ls.forEach((l) => l("on", event.data[2]));
+      } else if (event.data[0] === Midi.OFF) {
+        ls.forEach((l) => l("off", event.data[2]));
+      }
+    };
+  }
+  midi = Boolean(input);
+} catch {
+  midi = false;
 }
