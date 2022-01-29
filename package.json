@@ -7,6 +7,7 @@
     "clean": "rimraf built",
     "prebuild": "npm run clean",
     "build": "tsc",
+    "gen-dev-certs": "bash ./scripts/gen-dev-certs.sh",
     "start": "concurrently \"npm:start:*\"",
     "start:tsc": "tsc --watch",
     "start:server": "nodemon --watch './built/**/*.*' --exec node ./built/server/server.js"
@@ -30,6 +31,7 @@
   },
   "dependencies": {
     "async-wrapper-express-ts": "^3.1.6",
-    "express": "^4.17.2"
+    "express": "^4.17.2",
+    "http2-express-bridge": "^1.0.7"
   }
 }
